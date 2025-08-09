@@ -1,13 +1,13 @@
 export default interface User {
     readonly id: number;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     profile_picture: string;
     native_language: string;
     location: string;
-    is_on_boarded: boolean;
+    completed_profile: boolean;
     friends: number[];
     created_at: Date;
     updated_at: Date;
