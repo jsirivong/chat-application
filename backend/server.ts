@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import auth from "./routes/auth-route.ts";
 import { sql } from "./services/database.ts";
 import path from "path";
+import cookieparser from 'cookieparser';
 
 dotenv.config();
 
@@ -23,23 +24,26 @@ const DatabaseConnection = async () => {
             id SERIAL PRIMARY KEY,
             first_name VARCHAR(30) NOT NULL,
             last_name VARCHAR(30) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL CHECK (LENGTH(password) >= 8),
-            profile_picture VARCHAR(255),
-            native_language VARCHAR(255),
-            location VARCHAR(255),
+            email VARCHAR(150) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL CHECK(LENGTH(password) >= 8),
+            profile_picture VARCHAR(255) DEFAULT 'public/avatar-placeholder.jpg',
+            native_language VARCHAR(100),
+            location VARCHAR(100),
             is_on_boarded BOOLEAN DEFAULT FALSE,
             friends INTEGER[100],
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-            updated_at TIMESTAMP
-        )`;
+            created_at DATE DEFAULT CURRENT_DATE,
+            updated_at DATE
+        );`;
+        console.log("Successfully connected to database.");
     } catch (err) {
         console.log("Error in connecting to database.\n", err);
     }
 }
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on localhost:${PORT}\nServer is listening on port ${PORT}`);
-}).on("error", (err)=>{
-    console.log("Server start was unsuccessful.\n", err);
+DatabaseConnection().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on localhost:${PORT}\nServer is listening on port ${PORT}`);
+    }).on("error", (err) => {
+        console.log("Server start was unsuccessful.\n", err);
+    })
 })
