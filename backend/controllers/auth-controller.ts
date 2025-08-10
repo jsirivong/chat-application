@@ -3,11 +3,13 @@ import { sql } from '../services/database.ts';
 import { hashPassword, comparePassword } from '../services/passwordhash.ts';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import type User from '../types/User.ts';
+import { upsertStreamUser } from '../services/stream.ts';
+import type RequestUser from '../types/RequestUser.ts';
 
 interface RegisterData {
     [key: string]: string;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
 }
@@ -15,6 +17,14 @@ interface RegisterData {
 interface LoginData {
     email: string;
     password: string;
+}
+
+interface CompleteProfileData {
+    first_name: string;
+    last_name: string;
+    bio: string;
+    native_language: string;
+    location: string;
 }
 
 const validateEmailFormat = (email: string): boolean => {
@@ -40,10 +50,10 @@ const validateEmailUniqueness = async (email: string): Promise<boolean> => {
 }
 
 export const register = async (req: Request, res: Response) => {
-    const { firstName, lastName, email, password }: RegisterData = req.body;
+    const { first_name, last_name, email, password }: RegisterData = req.body;
 
     try {
-        if (!email || !lastName || !firstName || !password){
+        if (!email || !first_name || !last_name || !password){
             return res.status(400).json({success: false, message: "Please provide valid credentials."});
         }
 
@@ -59,7 +69,18 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({success: false, message: "Email is already taken."});
         }
 
-        const user = await sql`INSERT INTO Users (first_name, last_name, email, password) VALUES (${firstName}, ${lastName}, ${email}, ${await hashPassword(password)}) RETURNING *` as User[];
+        const user = await sql`INSERT INTO Users (first_name, last_name, email, password) VALUES (${first_name}, ${last_name}, ${email}, ${await hashPassword(password)}) RETURNING *` as User[];
+
+        // create new Stream User
+        try {
+            await upsertStreamUser({
+            id: `${user[0].id}`,
+            name: `${user[0].first_name} ${user[0].last_name}`,
+            image: user[0].profile_picture
+        })
+        } catch (err) {
+            console.error("Error creating Stream user", err);
+        }
 
         const payload: JwtPayload = {
             sub: `${user[0].id}`, // subject - unique identifier
@@ -100,12 +121,12 @@ export const login = async (req: Request, res: Response) => {
         // checks if a user in the database has the entered email
         const user = await sql`SELECT * FROM Users WHERE email=${email}` as User[];
 
-        if (!user || await !comparePassword(password, user[0].password)) {
+        if (!user || !await comparePassword(password, user[0].password)) {
             return res.status(401).json({success: false, message: "Email or password not found. Not authorized for the requested resource."});
         }
 
         const payload: JwtPayload = {
-            sub: `${user[0].id}`, // subject - unique identifier
+            sub: `${user[0].id}`, // subject - unique identifier - commonly the id of the entity
         };
 
         const options: jwt.SignOptions = {
@@ -131,8 +152,38 @@ export const login = async (req: Request, res: Response) => {
 }
 
 export const logout = (req: Request, res: Response) => {
-    // clear jwt cookies
+    // clear json web token cookies
 
+    // to clear a cookie, you use the clearCookie() method on the response object
     res.clearCookie("token");
     res.status(200).json({success: true, message: "Successfully logged out"});
+}
+
+export const completeProfile = async (req: RequestUser, res: Response) => {
+    try {
+        const id = req.user?.id;
+
+        const { first_name, last_name, bio, native_language, location }: CompleteProfileData = req.body;
+
+        if (!first_name || !last_name || !bio || !native_language || !location){
+            return res.status(400).json({success: false, message: "All fields are required", missingFields: [
+                !first_name && "first_name",
+                !last_name && "last_name",
+                !bio && "bio",
+                !native_language && "native_language",
+                !location && "location"
+            ].filter(Boolean)});
+        }
+
+        const user = await sql`UPDATE Users SET first_name=${first_name}, last_name=${last_name}, bio=${bio}, native_language=${native_language}, location=${location}, completed_profile=true WHERE id=${id} RETURNING *;` as User[];
+
+        if (!user) return res.status(404).json({success: false, message: "User not found."});
+
+        await upsertStreamUser({id: String(id), name: user[0].first_name + " " + user[0].last_name, image: user[0].profile_picture});
+
+        res.status(200).json({success: true, data: user[0]})
+    } catch (err){
+        console.log("Error completing profile.\n", err);
+        res.status(500).json({success: false, message: "Internal server error."});
+    }
 }
