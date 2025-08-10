@@ -4,6 +4,7 @@ export default interface User {
     last_name: string;
     email: string;
     password: string;
+    bio: string;
     profile_picture: string;
     native_language: string;
     location: string;
