@@ -8,23 +8,21 @@ export default function useRegister() {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<null | string>(null);
 
-    setLoading(true);
-
     const handleRegister = async (formData: FormData) => {
+        setLoading(true);
         try {
             const response = await axios.post("/auth/register", formData);
 
-            if (response.status !== 201) return console.log("Something went wrong.");
-
-            setError(null);
-            navigate("/");
-        } catch (err) {
-            setError("Error signing up.");
-            console.log(error, err);
+            if (response){
+                setError(null);
+                navigate("/");
+            }
+        } catch (err: any) {
+            setError(err.response.data?.message);
         } finally {
             setLoading(false);
         }
     }
-    
+
     return { loading, setLoading, error, setError, handleRegister }
 }
