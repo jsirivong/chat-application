@@ -1,4 +1,5 @@
 @import "tailwindcss";
 @plugin "daisyui" {
     themes: light --default, dark --prefersdark; /*--default is the default theme, --prefersdark is the default dark theme*/
+    /* changing the theme automatically changes the text and image colors */
 }

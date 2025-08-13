@@ -1,3 +1,5 @@
+import type { Language } from "./Language";
+
 export default interface User {
     readonly id: number;
     first_name: string;
@@ -6,7 +8,7 @@ export default interface User {
     password: string;
     bio: string;
     profile_picture: string;
-    native_language: string;
+    native_language: Language;
     location: string;
     completed_profile: boolean;
     friends: number[];

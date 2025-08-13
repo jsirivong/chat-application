@@ -2,7 +2,6 @@ import { useState } from "react"
 import { MessageSquareText } from "lucide-react";
 import { Link } from 'react-router'
 import type FormData from '../types/FormData.ts'
-import useRegister from "../hooks/useRegister.ts";
 
 interface IProps {
     handleSubmit: (formData: FormData) => void;

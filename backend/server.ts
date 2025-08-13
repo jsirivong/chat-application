@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan'
 import dotenv from 'dotenv';
 import auth from "./routes/auth-route.ts";
+import chat from './routes/chat-route.ts';
 import { sql } from "./services/database.ts";
 import path from "path";
 import cookieparser from 'cookie-parser';
@@ -11,15 +12,19 @@ import user from "./routes/user-route.ts";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT as string;
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true // allow frontend to send cookies
+}));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static(path.resolve("public")));
 app.use(cookieparser());
 app.use("/api/v1/auth", auth)
 app.use("/api/v1/users", user)
+app.use("/api/v1/chat", chat)
 
 const DatabaseConnection = async () => {
     try {
@@ -28,10 +33,10 @@ const DatabaseConnection = async () => {
             id SERIAL PRIMARY KEY,
             first_name VARCHAR(30) NOT NULL,
             last_name VARCHAR(30) NOT NULL,
-            email VARCHAR(150) NOT NULL UNIQUE,
+            email VARCHAR(150) NOT NULL,
             bio VARCHAR(200),
             password VARCHAR(255) NOT NULL CHECK(LENGTH(password) >= 8),
-            profile_picture VARCHAR(255) DEFAULT 'public/avatar-placeholder.jpg',
+            profile_picture VARCHAR(255) DEFAULT '/avatar-placeholder.jpg',
             native_language VARCHAR(100),
             location VARCHAR(100),
             completed_profile BOOLEAN DEFAULT FALSE,

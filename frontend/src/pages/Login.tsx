@@ -31,6 +31,8 @@ export default function Login() {
             } else {
                 return
             }
+
+            setError(null);
         } catch (err: any) {
             setError(err.response.data?.message);
         } finally {
@@ -115,6 +117,18 @@ export default function Login() {
                             </div>
                         </form>
                     </div>
+                </div>
+
+                {/* ILLUSTRATION SECTION */}
+                <div className="relative aspect-square max-w-sm">
+                    <img src="/login.svg" alt="Girl logging in illustration." className="w-full h-full"/>
+
+                    <div className="text-center space-y-3 mt-6">
+                            <h2 className="text-xl font-semibold">Chat with people worldwide.</h2>
+                            <p className="opacity-70">
+                                Create friendships, chat 24/7, and study together
+                            </p>
+                        </div>
                 </div>
             </div>
         </div>

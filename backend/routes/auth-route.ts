@@ -1,5 +1,5 @@
 import express, { type Response } from 'express';
-import { login, register, logout, completeProfile } from '../controllers/auth-controller.ts';
+import { login, register, logout, completeProfile } from '../controllers/auth/auth-controller.ts';
 import { authorizeUser } from '../middleware/authorize.user.ts';
 import type RequestUser from '../types/RequestUser.ts';
 
@@ -11,7 +11,7 @@ router.post("/logout", logout)
 router.post("/complete", authorizeUser, completeProfile)
 
 router.get("/me", authorizeUser, (req: RequestUser, res: Response)=>{
-    res.status(200).json({success: true, data: req.user})
+    res.status(200).json({success: true, user: req.user})
 })
 
 export default router;

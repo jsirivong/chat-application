@@ -7,7 +7,6 @@ import { upsertStreamUser } from '../../services/stream.ts';
 import type RequestUser from '../../types/RequestUser.ts';
 import type { RegisterData, LoginData, CompleteProfileData } from './auth.types.ts';
 
-
 const validateEmailFormat = (email: string): boolean => {
     const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

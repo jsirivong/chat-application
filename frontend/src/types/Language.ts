@@ -1,4 +1,4 @@
-export type Language = "English" | "Spanish" | "French" | "German" | "Mandarin" | "Japanese" | "Korean" | "Russian" | "Hindi" | "Portuguese" | "Arabic" | "Italian" | "Turkish" | "Dutch" | "Thai" | "Swedish"
+export type Language = "English" | "Spanish" | "French" | "German" | "Mandarin" | "Japanese" | "Korean" | "Russian" | "Hindi" | "Portuguese" | "Arabic" | "Italian" | "Turkish" | "Dutch" 
 
 export const Languages: Language[] = [
     "English",
@@ -16,7 +16,8 @@ export const Languages: Language[] = [
     "Turkish",
     "Dutch"
 ]
-export enum LanguageToFlag {
+
+export enum LanguageFlag {
     English="gb",
     Spanish="es",
     French="fr",
@@ -26,7 +27,7 @@ export enum LanguageToFlag {
     Korean="kr",
     Hindi="in",
     Russian="ru",
-    Protuguese="pt",
+    Portuguese="pt",
     Arabic="sa",
     Italian="it",
     Turkish="tr",

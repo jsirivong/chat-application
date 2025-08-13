@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(authorizeUser)
 
 router.post("/friend-request/:id", sendFriendRequest)
-router.post("/friend-request/:id/accept", acceptFriendRequest);
+router.put("/friend-request/:id/accept", acceptFriendRequest);
 router.get("/", getRecommendedUsers)
 router.get("/friends", getFriends)
 router.get("/friend-requests", getFriendRequests)
